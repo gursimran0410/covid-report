@@ -39,13 +39,15 @@ export default function Signup() {
         password,
         email
       })
-    }).then(res=>res.json())
-    .then((data=>{
+    })
+    .then(res=>res.json())
+    .then(data=>{
+      console.log(data)
       console.log(data.message)
       if(data.message === "New Account Created!"){
         history.push('/signin')
       }
-    }))
+    }).catch(error => console.log(error))
   }
 
   return (

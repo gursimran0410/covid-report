@@ -5,7 +5,7 @@ import CardContent from '@material-ui/core/CardContent';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
-import {Link} from 'react-router-dom'
+import {Link, useHistory} from 'react-router-dom'
 
 const useStyles = makeStyles({
   root: {
@@ -25,6 +25,7 @@ export default function Signup() {
   const classes = useStyles();
   const [password,setPass] = useState("")
   const [email,setMail] = useState("")
+  let history = useHistory()
 
   const PostData = () => {
     fetch("http://localhost:5000/signin",{
@@ -39,9 +40,12 @@ export default function Signup() {
     }).then(res=>res.json())
     .then((data=>{
       console.log(data)
-    //   if(data.message === "New Account Created!"){
-    //     history.push('/signin')
-    //   }
+      if(data.error){
+        return console.log(data.error)
+      }
+      localStorage.setItem("jwt",data.token)
+      localStorage.setItem("user",JSON.stringify(data.user))
+      history.push("/")
     }))
   }
 

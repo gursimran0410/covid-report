@@ -6,9 +6,17 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const {JWT_SECRET} = require('../keys')
 const checkLogin = require('../middleware/checkLogin')
+const axios = require('axios')
 
 router.get('/protected',checkLogin,(req,res)=>{
-    res.send("Hello User")
+    var config = {
+        method: 'get',
+        url: 'https://api.covid19api.com/summary',
+        headers: { }
+    }
+    axios(config)
+    .then(response => res.json(response.data))
+    .catch(err => console.log(err))
 })
 
 router.post('/signin',(req,res)=>{
@@ -25,11 +33,10 @@ router.post('/signin',(req,res)=>{
         .then(isMatch => {
             if(!isMatch){
                 return res.status(422).json({error:"Invalid Email Or Password!"})
-                
             }
-            // res.status(200).json({message:"Successfully Signed In!"})
-            const token = jwt.sign({_id:savedUser._id},JWT_SECRET)
-            return res.json({token})
+            const {_id,name,email} = savedUser
+            const token = jwt.sign({_id:savedUser._id},JWT_SECRET,{expiresIn:'1d'})
+            return res.json({token,user:{_id,email,name}})
         })
         .catch(err => {console.log(err)})
     })
@@ -54,7 +61,7 @@ router.post('/signup',(req,res)=>{
             })
             user.save()
             .then(user=>{
-                res.json({message:"New Account Created!"})
+                res.status(200).json({message:"New Account Created!"})
             })
             .catch(err=>{
                 console.log(err)
